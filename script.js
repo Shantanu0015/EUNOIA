@@ -1,76 +1,27 @@
-// script.js
 document.addEventListener("DOMContentLoaded", function () {
-  const chatbotContainer = document.getElementById("chatbot-container");
-  const closeBtn = document.getElementById("close-btn");
-  const sendBtn = document.getElementById("send-btn");
-  const chatbotInput = document.getElementById("chatbot-input");
-  const chatbotMessages = document.getElementById("chatbot-messages");
+    const chatForm = document.getElementById("chat-form");
+    const userInput = document.getElementById("user-input");
+    const chatWindow = document.getElementById("chat-window");
 
-  const chatbotIcon = document.getElementById("chatbot-icon");
-  const closeButton = document.getElementById("close-btn");
+    chatForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const text = userInput.value.trim();
+        if (!text) return;
+        appendMessage("user", text);
+        userInput.value = "";
+        setTimeout(() => {
+            appendMessage("bot", "Hello! How can I help you?");
+        }, 600);
+    });
 
-  // Toggle chatbot visibility when clicking the icon
-  // Show chatbot when clicking the icon
-  chatbotIcon.addEventListener("click", function () {
-    chatbotContainer.classList.remove("hidden");
-    chatbotIcon.style.display = "none"; // Hide chat icon
-  });
-
-  // Also toggle when clicking the close button
-  closeButton.addEventListener("click", function () {
-    chatbotContainer.classList.add("hidden");
-    chatbotIcon.style.display = "flex"; // Show chat icon again
-  });
-
-  sendBtn.addEventListener("click", sendMessage);
-  chatbotInput.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") {
-      sendMessage();
+    function appendMessage(sender, message) {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = `message ${sender}`;
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = message;
+        msgDiv.appendChild(bubble);
+        chatWindow.appendChild(msgDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
     }
-  });
-
-  function sendMessage() {
-    const userMessage = chatbotInput.value.trim();
-    if (userMessage) {
-      appendMessage("user", userMessage);
-      chatbotInput.value = "";
-      getBotResponse(userMessage);
-    }
-  }
-
-  function appendMessage(sender, message) {
-    const messageElement = document.createElement("div");
-    messageElement.classList.add("message", sender);
-    messageElement.textContent = message;
-    chatbotMessages.appendChild(messageElement);
-    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-  }
-
-  async function getBotResponse(userMessage) {
-    const apiKey = "API key here"; // Replace with your OpenAI API key
-    const apiUrl = "https://platform.openai.com/";
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: userMessage }],
-          max_tokens: 150,
-        }),
-      });
-
-      const data = await response.json();
-      const botMessage = data.choices[0].message.content;
-      appendMessage("bot", botMessage);
-    } catch (error) {
-      console.error("Error fetching bot response:", error);
-      appendMessage("bot", "Sorry, something went wrong. Please try again.");
-    }
-  }
-  
 });
